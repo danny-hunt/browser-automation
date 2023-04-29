@@ -9,5 +9,6 @@
 ### To run the script:
 `python3 main.py`
 
+
 ## To run the api:
 `uvicorn api:app --reload`
