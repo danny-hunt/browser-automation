@@ -1,3 +1,5 @@
+![Meet the team](./Screenshot 2023-04-29 at 21.11.47.png)
+
 ### To set up:
 - Set up the .env file with API keys and login credentials 
 - Install requirements:
