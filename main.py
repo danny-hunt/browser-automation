@@ -87,37 +87,48 @@ def voice_to_text(file_name: str) -> str:
     return transcript
 
 
+def dummy_procedure():
+    query("I want to go to the hackernews login page.", hackernews_home_html)
+    query(f"I want to login on this page. My username is {username} and my password is {password}.", hackernews_login_html)
+    query("I want to scroll to the bottom of the page.", None)
+    query("I want to go to the post creation page.", hackernews_home_html)
+    query(
+        "I want to fill in the title and description fields. \
+        The information should relate to my desire to tell the readers of hackernews that this post is the culmanation of our work at a hackathon in London.\
+        Do not submit the post yet.", 
+        hackernew_submit_html
+    )
+    sleep(4)
+    # query(
+    #     "I want to click the submit button", # This prompt at the moment has to be super specific since we don't update the html after the previous step
+    #     hackernew_submit_html
+    # )
+
+    # query(
+    #     voice_to_text(audio_file),
+    #     hackernew_submit_html
+    # )
 
 # """
 
 if __name__ == "__main__":
+    SEEN_FILES = set()
+    for file_name in os.listdir("./audio_files"):
+        SEEN_FILES.add(file_name)
+
     DRIVER = webdriver.Chrome(chrome_options=chrome_options)
     DRIVER.get('https://news.ycombinator.com/news')
 
-    query("I want to go to the hackernews login page.", hackernews_home_html)
+    dummy_procedure()
+    while True:
+        for file_name in filter(lambda x: x not in SEEN_FILES, os.listdir("./audio_files")):
+            query(
+                voice_to_text(os.path.join("./audio_files", file_name)),
+                DRIVER.find_element("tag name", "body").get_attribute('innerHTML')
+            )
+            print("===")
+            SEEN_FILES.add(file_name)
+        sleep(1)
 
-    query(f"I want to login on this page. My username is {username} and my password is {password}.", hackernews_login_html)
-
-    query("I want to scroll to the bottom of the page.", None)
-
-    query("I want to go to the post creation page.", hackernews_home_html)
-
-    query(
-        "I want to fill in the title and description fields. \
-        The information should relate to my desire to tell the readers of hackernews that this post is the culmanation of my work at a hackathon in London.\
-        Do not submit the post yet.", 
-        hackernew_submit_html
-    )
-
-    sleep(4)
-# query(
-#     "I want to click the submit button", # This prompt at the moment has to be super specific since we don't update the html after the previous step
-#     hackernew_submit_html
-# )
-
-# query(
-#     voice_to_text(audio_file),
-#     hackernew_submit_html
-# )
 
 
