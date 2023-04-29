@@ -4,7 +4,7 @@ from typing import Optional
 import openai
 from dotenv import load_dotenv
 
-from htmlstring import hackernews_html
+from htmlstring import hackernews_login_html, hackernews_home_html, hackernew_submit_html
 load_dotenv()
 
 openai.organization = os.getenv("OPENAI_ORGANIZATION")
@@ -51,7 +51,7 @@ def process_output(output_message: str) -> str:
     return message.strip()
 
 
-login_response = query(login_prompt, hackernews_html)
+login_response = query(login_prompt, hackernews_login_html)
 print(process_output(login_response["choices"][0]["message"]["content"]))
 
 print ("===")
@@ -59,3 +59,20 @@ print ("===")
 scroll = query(scroll_prompt, None)
 print(process_output(scroll["choices"][0]["message"]["content"]))
 
+print ("===")
+go_to_post_creation = query("I want to go to the post creation page.", hackernews_home_html)
+print(process_output(go_to_post_creation["choices"][0]["message"]["content"]))
+
+print ("===")
+create_post = query(
+    "I want to fill in the title and description fields. I want to tell the readers of hackernews that this post is the culmanation of my work at a hackathon in London.", 
+    hackernew_submit_html
+)
+print(process_output(create_post["choices"][0]["message"]["content"]))
+
+print ("===")
+submit_post = query(
+    "I want to click the submit button", # This prompt at the moment has to be super specific since we don't update the html after the previous step
+    hackernew_submit_html
+)
+print(process_output(submit_post["choices"][0]["message"]["content"]))
