@@ -70,6 +70,8 @@ def process_output(output_message: str) -> str:
 
 def query(user_message: str, events: Optional[list[str]], html: Optional[str]):
     print("===")
+    if user_message == '':
+        user_message = json.loads(events)[0]["text"]
     try:
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",

@@ -27,13 +27,13 @@ def hello(input: PromptInput):
     Takes a prompt (goal to complete on the current webpage) and the current page's html.
     It returns some js to run that will complete that goal if run in the browser console.
     """
-    output = query(input.message, [], input.html)
+    output = query('', [], input.html)
     return output
 
 
 @app.post("/prompt/events")
 def events(input: PromptInput):
-    output = query(input.message, input.events, input.html)
+    output = query('', input.events, input.html)
     return output
 
 
