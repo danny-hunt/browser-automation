@@ -11,10 +11,10 @@ class PromptInput(BaseModel):
 app = FastAPI()
 
 @app.get("/prompt")
-def hello(prompt: str, html: str):
+def hello(input: PromptInput):
     """
     Takes a prompt (goal to complete on the current webpage) and the current page's html.
     It returns some js to run that will complete that goal if run in the browser console.
     """
-    output = query(prompt, html)
+    output = query(input.prompt, input.html)
     return output
