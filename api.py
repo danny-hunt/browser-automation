@@ -10,7 +10,7 @@ class PromptInput(BaseModel):
 
 app = FastAPI()
 
-@app.get("/prompt")
+@app.post("/prompt")
 def hello(input: PromptInput):
     """
     Takes a prompt (goal to complete on the current webpage) and the current page's html.
