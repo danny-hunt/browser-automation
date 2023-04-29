@@ -2,6 +2,8 @@
 - Set up the .env file with API keys and login credentials 
 - Install requirements:
     - `python3 -m pip install -r requirements.txt`
+- Install ffmpeg on your machine. For example on mac:
+    - `brew install ffmpeg`
 
 
 ### To run the script:
