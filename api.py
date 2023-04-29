@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 from fastapi import FastAPI, File, UploadFile
 from pydantic import BaseModel
 from uuid import uuid4
@@ -6,9 +7,9 @@ from uuid import uuid4
 from main import query, voice_to_text
 
 class PromptInput(BaseModel):
-    message: str
-    json: dict
-    html: str
+    message: Optional[str]
+    metadata: Optional[dict]
+    html: Optional[str]
 
 
 app = FastAPI()

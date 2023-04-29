@@ -5,6 +5,8 @@ from typing import Optional
 import openai
 from dotenv import load_dotenv
 from selenium import webdriver
+from pydub import AudioSegment
+from pydub.playback import play
 
 from htmlstring import hackernews_login_html, hackernews_home_html, hackernew_submit_html
 load_dotenv()
@@ -18,14 +20,28 @@ chrome_options = webdriver.ChromeOptions()
 DRIVER: Optional[webdriver.Chrome] = None 
 
 
-def prompt(user_message: str):
+def prompt(goal: str, events: Optional[list[str]]):
+    events_string = "\n".join(events) if events else ""
     return f"""
 Please respond with only javascript code that can be executed in the browser console that will fulfil this objective:
-{user_message}
+{goal}
 The code should not do anything other than fulfil that objective.
 Do not respond with anything other than code. There should be no explanation of the code. Any text that is not valid javascript code will be rejected.
-The username is {username} and the password is {password}.
+{events_string}
 The current page in html is the following:"""
+
+
+def create_chat_completion_messages(user_message: str, events: Optional[list[str]], html: Optional[str]) -> list[dict]:
+    return [
+        {
+            "role": "system", 
+            "content": prompt(user_message, events)
+        }, 
+        {
+            "role": "user",
+            "content": html or DRIVER.find_element("tag name", "body").get_attribute('innerHTML')[:3000]
+        }
+    ]
 
 login_prompt = f"I want to login. My username is {username} and my password is {password}."
 
@@ -55,16 +71,7 @@ def query(user_message: str, html: Optional[str]):
     try:
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=[
-                {
-                    "role": "system", 
-                    "content": prompt(user_message)
-                }, 
-                {
-                    "role": "user",
-                    "content": html or DRIVER.find_element("tag name", "body").get_attribute('innerHTML')[:3000]
-                }
-            ],
+            messages=create_chat_completion_messages(user_message, [], html),
             temperature=0,
             max_tokens=150,
         )
@@ -82,7 +89,10 @@ def query(user_message: str, html: Optional[str]):
 audio_file = "./audio_files/submit.m4a"
 def voice_to_text(file_name: str) -> str:
     with open(file_name, "rb") as audio:
-        transcript = openai.Audio.transcribe("whisper-1", audio)["text"]
+        transcript: str = openai.Audio.transcribe("whisper-1", audio)["text"]
+    
+    transcript = transcript.replace('username is username', f'username is {username}')
+    transcript = transcript.replace('password is password', f'password is {password}')
     print(f'** Audio instructions transcribed as: "{transcript}"')
     return transcript
 
@@ -113,18 +123,22 @@ def dummy_procedure():
 
 if __name__ == "__main__":
     SEEN_FILES = set()
-    for file_name in os.listdir("./audio_files"):
-        SEEN_FILES.add(file_name)
+    # for file_name in os.listdir("./audio_files"):
+    #     SEEN_FILES.add(file_name)
 
     DRIVER = webdriver.Chrome(chrome_options=chrome_options)
     DRIVER.get('https://news.ycombinator.com/news')
+    print(sorted(os.listdir("./audio_files")))
 
-    dummy_procedure()
+    # dummy_procedure()
     while True:
-        for file_name in filter(lambda x: x not in SEEN_FILES, os.listdir("./audio_files")):
+        for file_name in filter(lambda x: x not in SEEN_FILES, sorted(os.listdir("./audio_files"))):
+            fuller_path = os.path.join('audio_files', file_name)
+            audio = AudioSegment.from_file(fuller_path, format="m4a")
+            play(audio)
             query(
-                voice_to_text(os.path.join("./audio_files", file_name)),
-                DRIVER.find_element("tag name", "body").get_attribute('innerHTML')
+                voice_to_text(fuller_path),
+                DRIVER.find_element("tag name", "body").get_attribute('innerHTML')[:3000]
             )
             print("===")
             SEEN_FILES.add(file_name)
