@@ -30,7 +30,7 @@ The code should not do anything other than fulfil that objective.
 Do not respond with anything other than code. There should be no explanation of the code. Any text that is not valid javascript code will be rejected.
 {'Here are some events that occurred the last time we visited this page:' if events else ''}
 {events_string}
-The current page in html is the following:"""
+The html is included too"""
 
 
 def create_chat_completion_messages(user_message: str, events: Optional[list[str]], html: Optional[str]) -> list[dict]:
@@ -41,7 +41,7 @@ def create_chat_completion_messages(user_message: str, events: Optional[list[str
         }, 
         {
             "role": "user",
-            "content": html or DRIVER.find_element("tag name", "body").get_attribute('innerHTML')[:3000]
+            "content": "Please do the above"
         }
     ]
 
