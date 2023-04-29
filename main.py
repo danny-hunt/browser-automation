@@ -90,10 +90,9 @@ audio_file = "./audio_files/submit.m4a"
 def voice_to_text(file_name: str) -> str:
     with open(file_name, "rb") as audio:
         transcript: str = openai.Audio.transcribe("whisper-1", audio)["text"]
-    
+    print(f'** Audio instructions transcribed as: "{transcript}"')
     transcript = transcript.replace('username is username', f'username is {username}')
     transcript = transcript.replace('password is password', f'password is {password}')
-    print(f'** Audio instructions transcribed as: "{transcript}"')
     return transcript
 
 
