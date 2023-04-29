@@ -4,7 +4,8 @@ from pydantic import BaseModel
 from main import query
 
 class PromptInput(BaseModel):
-    prompt: str
+    message: str
+    json: dict
     html: str
 
 
@@ -16,5 +17,5 @@ def hello(input: PromptInput):
     Takes a prompt (goal to complete on the current webpage) and the current page's html.
     It returns some js to run that will complete that goal if run in the browser console.
     """
-    output = query(input.prompt, input.html)
+    output = query(input.message, input.html)
     return output
