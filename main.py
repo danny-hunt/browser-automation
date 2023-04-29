@@ -98,6 +98,7 @@ def voice_to_text(file_name: str) -> str:
 
 
 def dummy_procedure():
+    DRIVER.get('https://news.ycombinator.com/news')
     query("I want to go to the hackernews login page.", hackernews_home_html)
     query(f"I want to login on this page. My username is {username} and my password is {password}.", hackernews_login_html)
     query("I want to scroll to the bottom of the page.", None)
@@ -127,7 +128,6 @@ if __name__ == "__main__":
     #     SEEN_FILES.add(file_name)
 
     DRIVER = webdriver.Chrome(chrome_options=chrome_options)
-    DRIVER.get('https://news.ycombinator.com/news')
     print(sorted(os.listdir("./audio_files")))
 
     # dummy_procedure()
