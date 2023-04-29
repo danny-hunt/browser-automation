@@ -1,4 +1,5 @@
 
+import json
 import os
 from time import sleep
 from typing import Optional
@@ -21,12 +22,13 @@ DRIVER: Optional[webdriver.Chrome] = None
 
 
 def prompt(goal: str, events: Optional[list[str]]):
-    events_string = "\n".join(events) if events else ""
+    events_string = '\n'.join([json.dumps(event) for event in events]) if events else ''
     return f"""
 Please respond with only javascript code that can be executed in the browser console that will fulfil this objective:
 {goal}
 The code should not do anything other than fulfil that objective.
 Do not respond with anything other than code. There should be no explanation of the code. Any text that is not valid javascript code will be rejected.
+{'Here are some events that occurred the last time we visited this page:' if events else ''}
 {events_string}
 The current page in html is the following:"""
 
@@ -66,12 +68,12 @@ def process_output(output_message: str) -> str:
             raise e
     return message
 
-def query(user_message: str, html: Optional[str]):
+def query(user_message: str, events: Optional[list[str]], html: Optional[str]):
     print("===")
     try:
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=create_chat_completion_messages(user_message, [], html),
+            messages=create_chat_completion_messages(user_message, events or [], html),
             temperature=0,
             max_tokens=150,
         )
@@ -99,14 +101,15 @@ def voice_to_text(file_name: str) -> str:
 
 def dummy_procedure():
     DRIVER.get('https://news.ycombinator.com/news')
-    query("I want to go to the hackernews login page.", hackernews_home_html)
-    query(f"I want to login on this page. My username is {username} and my password is {password}.", hackernews_login_html)
-    query("I want to scroll to the bottom of the page.", None)
-    query("I want to go to the post creation page.", hackernews_home_html)
+    query("I want to go to the hackernews login page.", [], hackernews_home_html)
+    query(f"I want to login on this page. My username is {username} and my password is {password}.", [], hackernews_login_html)
+    query("I want to scroll to the bottom of the page.", [], None)
+    query("I want to go to the post creation page.", [], hackernews_home_html)
     query(
         "I want to fill in the title and description fields. \
         The information should relate to my desire to tell the readers of hackernews that this post is the culmanation of our work at a hackathon in London.\
         Do not submit the post yet.", 
+        [],
         hackernew_submit_html
     )
     sleep(4)
@@ -138,6 +141,7 @@ if __name__ == "__main__":
             play(audio)
             query(
                 voice_to_text(fuller_path),
+                [],
                 DRIVER.find_element("tag name", "body").get_attribute('innerHTML')[:3000]
             )
             print("===")

@@ -12,6 +12,13 @@ class PromptInput(BaseModel):
     html: Optional[str]
 
 
+class PromptInput(BaseModel):
+    message: Optional[str]
+    metadata: Optional[dict]
+    html: Optional[str]
+    events: Optional[list[str]]
+
+
 app = FastAPI()
 
 @app.post("/prompt")
@@ -20,7 +27,13 @@ def hello(input: PromptInput):
     Takes a prompt (goal to complete on the current webpage) and the current page's html.
     It returns some js to run that will complete that goal if run in the browser console.
     """
-    output = query(input.message, input.html)
+    output = query(input.message, [], input.html)
+    return output
+
+
+@app.post("/prompt/events")
+def events(input: PromptInput):
+    output = query(input.message, input.events, input.html)
     return output
 
 
