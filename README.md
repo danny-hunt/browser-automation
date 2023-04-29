@@ -8,6 +8,7 @@
 
 ### To run the script:
 (our live demo used the `demo` branch rather than `main`)
+
 `python3 main.py`
 
 ## To run the api:
